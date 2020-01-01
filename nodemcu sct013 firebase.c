@@ -34,16 +34,27 @@ void loop()
   Serial.print(" Daya : ");
   Serial.println(Irms*tegangan);
   float watt = Irms*tegangan;
+  if (Firebase.getFloat("arus")== 0){
   Firebase.setFloat("arus",Irms);
   Firebase.setFloat("daya",watt);
-  // handle error
   if (Firebase.failed()) {
       Serial.print("setting /number failed:");
       Serial.println(Firebase.error());  
       return;
   }
+  }
+  if(Firebase.getFloat("arus") != 0){
+     Firebase.set("arus",Irms);
+     Firebase.set("daya",watt);
+     if (Firebase.failed()) {
+      Serial.print("setting /number failed:");
+      Serial.println(Firebase.error());  
+      return;
+  }
+  }
+  // handle error
   Firebase.getFloat("Cost");
-  float biaya = watt/1000 * 1300;
+  float biaya = watt/1000 * 1.13;
   if (Firebase.getFloat("Cost")) == 0{
   Firebase.setFloat("Cost",biaya);
   if (Firebase.failed()) {
@@ -55,12 +66,12 @@ void loop()
 
   if (Firebase.getFloat("Cost")) != 0 {
     float biaya2 = Firebase.getFloat("Cost") + biaya;
-    Firebase.setFloat("Cost",biaya2);
+    Firebase.set("Cost",biaya2);
     if (Firebase.failed()) {
       Serial.print("setting /number failed:");
       Serial.println(Firebase.error());  
       return;
   }
   }
-  delay(1000);
+  delay(3000);
 }
